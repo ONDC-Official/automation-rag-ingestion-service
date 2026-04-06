@@ -1,0 +1,148 @@
+# ONDC RAG System - Unified Docker Compose
+# Supports: Milvus (vector DB) + Neo4j (graph DB) + Ollama (LLM/Embeddings)
+# Query routing: QUERY_FROM=milvus|neo4j|all (in .env)
+
+services:
+  # VECTOR DATABASE (Milvus) 
+
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.5
+    container_name: rag-etcd
+    environment:
+      - ETCD_AUTO_COMPACTION_MODE=revision
+      - ETCD_AUTO_COMPACTION_RETENTION=1000
+      - ETCD_QUOTA_BACKEND_BYTES=4294967296
+      - ETCD_SNAPSHOT_COUNT=50000
+    volumes:
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/etcd:/etcd
+    command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    healthcheck:
+      test: [ "CMD", "etcdctl", "endpoint", "health" ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - rag_network
+
+  minio:
+    image: minio/minio:RELEASE.2023-03-20T20-16-18Z
+    container_name: rag-minio
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/minio:/minio_data
+    ports:
+      - "9000:9000" # MinIO API
+      - "9001:9001" # MinIO Console (UI)
+    command: server /minio_data --console-address ":9001"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - rag_network
+
+  milvus:
+    image: milvusdb/milvus:v2.4.15
+    container_name: rag-milvus
+    command: [ "milvus", "run", "standalone" ]
+    environment:
+      ETCD_ENDPOINTS: etcd:2379
+      MINIO_ADDRESS: minio:9000
+    volumes:
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/milvus:/var/lib/milvus
+    ports:
+      - "19530:19530" # gRPC
+      - "9091:9091" # Metrics
+    depends_on:
+      - etcd
+      - minio
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9091/healthz" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - rag_network
+
+  attu:
+    image: zilliz/attu:v2.4.7
+    container_name: rag-attu
+    environment:
+      MILVUS_URL: milvus:19530
+    ports:
+      - "8001:3000" # Attu UI
+    depends_on:
+      - milvus
+    networks:
+      - rag_network
+
+  # GRAPH DATABASE (Neo4j) 
+
+  neo4j:
+    image: neo4j:5 # Community Edition (lighter than enterprise)
+    container_name: rag-neo4j
+    environment:
+      NEO4J_AUTH: neo4j/password
+    volumes:
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/neo4j/data:/data
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/neo4j/logs:/logs
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/neo4j/import:/var/lib/neo4j/import
+    ports:
+      - "7474:7474" # HTTP UI (Neo4j Browser)
+      - "7687:7687" # Bolt Protocol (Python drivers)
+    healthcheck:
+      test: [ "CMD", "wget", "-qO-", "http://localhost:7474" ] # Simpler healthcheck
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - rag_network
+
+  # LLM & EMBEDDINGS (Ollama)
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: rag-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/ollama:/root/.ollama
+    environment:
+      OLLAMA_NUM_PARALLEL: 4
+      OLLAMA_NUM_GPU: 1
+    networks:
+      - rag_network
+
+  rag-ingest:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rag-ingest
+    volumes:
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/build-output/temp:/app/data
+    env_file:
+      - .env
+    environment:
+      INGEST_MODE: all # milvus | neo4j | all
+      DATA_DIR: /app/data
+    depends_on:
+      - milvus
+      - neo4j
+      - ollama
+    networks:
+      - rag_network
+
+networks:
+  rag_network:
+    name: rag_network
+    driver: bridge
+
+volumes:
+  etcd_data:
+  minio_data:
+  milvus_data:
+  neo4j_data:
+  ollama_data:

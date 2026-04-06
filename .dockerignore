@@ -1,0 +1,10 @@
+# Exclude the heavy database volumes from the build context
+volumes/
+build-output/
+venv/
+
+# Exclude python cache and IDE files
+**/__pycache__/
+*.pyc
+.DS_Store
+.git/
