@@ -1,5 +1,7 @@
 from helpers import _build_chunk_text, _chunk_id, _truncate, _indent
 from config import *
+import re
+
 
 def chunk_type_definitions(pre_main_text: str, action: str, source_type: str) -> list[dict]:
     chunks = []
