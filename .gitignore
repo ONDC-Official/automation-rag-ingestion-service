@@ -20,7 +20,6 @@ env/
 build/
 dist/
 *.egg-info/
-build-output/
 
 # Logs and local databases
 *.log
