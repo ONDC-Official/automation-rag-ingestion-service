@@ -3,7 +3,7 @@
 # Query routing: QUERY_FROM=milvus|neo4j|all (in .env)
 
 services:
-  # VECTOR DATABASE (Milvus) 
+  # VECTOR DATABASE (Milvus)
 
   etcd:
     image: quay.io/coreos/etcd:v3.5.5
@@ -17,7 +17,7 @@ services:
       - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/etcd:/etcd
     command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
     healthcheck:
-      test: [ "CMD", "etcdctl", "endpoint", "health" ]
+      test: ["CMD", "etcdctl", "endpoint", "health"]
       interval: 30s
       timeout: 20s
       retries: 3
@@ -37,7 +37,7 @@ services:
       - "9001:9001" # MinIO Console (UI)
     command: server /minio_data --console-address ":9001"
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
       timeout: 20s
       retries: 3
@@ -47,7 +47,7 @@ services:
   milvus:
     image: milvusdb/milvus:v2.4.15
     container_name: rag-milvus
-    command: [ "milvus", "run", "standalone" ]
+    command: ["milvus", "run", "standalone"]
     environment:
       ETCD_ENDPOINTS: etcd:2379
       MINIO_ADDRESS: minio:9000
@@ -60,7 +60,7 @@ services:
       - etcd
       - minio
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9091/healthz" ]
+      test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -79,7 +79,7 @@ services:
     networks:
       - rag_network
 
-  # GRAPH DATABASE (Neo4j) 
+  # GRAPH DATABASE (Neo4j)
 
   neo4j:
     image: neo4j:5 # Community Edition (lighter than enterprise)
@@ -94,7 +94,7 @@ services:
       - "7474:7474" # HTTP UI (Neo4j Browser)
       - "7687:7687" # Bolt Protocol (Python drivers)
     healthcheck:
-      test: [ "CMD", "wget", "-qO-", "http://localhost:7474" ] # Simpler healthcheck
+      test: ["CMD", "wget", "-qO-", "http://localhost:7474"] # Simpler healthcheck
       interval: 30s
       timeout: 10s
       retries: 5
@@ -138,7 +138,7 @@ services:
 networks:
   rag_network:
     name: rag_network
-    driver: bridge
+    external: true
 
 volumes:
   etcd_data:
