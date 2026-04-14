@@ -1,9 +1,9 @@
 ---
 action: status
 domain: ONDC:FIS12
-version: 2.0.2
+version: 2.3.0
 numTests: 3
-generated: 2026-03-18
+generated: 2026-04-14
 ---
 
 ```json
@@ -19,7 +19,7 @@ generated: 2026-03-18
           "ONDC:FIS12"
         ],
         "version": [
-          "2.0.2"
+          "2.3.0"
         ],
         "_RETURN_": [
           {
@@ -56,24 +56,6 @@ generated: 2026-03-18
                 "_RETURN_": "attr are present"
               },
               {
-                "_NAME_": "REQUIRED_CONTEXT_BPP_ID",
-                "attr": "$.context.bpp_id",
-                "var_search": [
-                  "search"
-                ],
-                "_CONTINUE_": "(action all in var_search)",
-                "_RETURN_": "attr are present"
-              },
-              {
-                "_NAME_": "REQUIRED_CONTEXT_BPP_URI",
-                "attr": "$.context.bpp_uri",
-                "var_search": [
-                  "search"
-                ],
-                "_CONTINUE_": "(action all in var_search)",
-                "_RETURN_": "attr are present"
-              },
-              {
                 "_NAME_": "REQUIRED_CONTEXT_TRANSACTION_ID",
                 "attr": "$.context.transaction_id",
                 "_RETURN_": "attr are present"
@@ -92,6 +74,16 @@ generated: 2026-03-18
                 "_NAME_": "REQUIRED_CONTEXT_TTL",
                 "attr": "$.context.ttl",
                 "_RETURN_": "attr are present"
+              },
+              {
+                "_NAME_": "REQUIRED_CONTEXT_BPP_ID",
+                "attr": "$.context.bpp_id",
+                "_RETURN_": "attr are present"
+              },
+              {
+                "_NAME_": "REQUIRED_CONTEXT_BPP_URI",
+                "attr": "$.context.bpp_uri",
+                "_RETURN_": "attr are present"
               }
             ]
           },
@@ -105,7 +97,7 @@ generated: 2026-03-18
                 "enumList": [
                   "IND"
                 ],
-                "_RETURN_": "attr any in enumList"
+                "_RETURN_": "attr all in enumList"
               },
               {
                 "_NAME_": "VALID_CONTEXT_DOMAIN",
@@ -125,13 +117,13 @@ generated: 2026-03-18
                 "_NAME_": "REGEX_CONTEXT_LOCATION_CITY_CODE",
                 "attr": "$.context.location.city.code",
                 "reg": [
-                  "^\\*$"
+                  "(\\\\*)|(^std\\\\:[0-9]{2,4}$)"
                 ],
                 "_CONTINUE_": "!(attr are present)",
                 "_RETURN_": "attr follow regex reg"
               },
               {
-                "_NAME_": "REGEX_CONTEXT_TIMESTAMP",
+                "_NAME_": "REGEX_CONTEXT_TIMESTAMP_1",
                 "attr": "$.context.timestamp",
                 "reg": [
                   "^\\\\d{4}-\\\\d{2}-\\\\d{2}T\\\\d{2}:\\\\d{2}:\\\\d{2}(\\\\.\\\\d+)?(Z|[+-]\\\\d{2}:\\\\d{2})$"
@@ -152,16 +144,34 @@ generated: 2026-03-18
                 "_NAME_": "REGEX_CONTEXT_BAP_URI",
                 "attr": "$.context.bap_uri",
                 "reg": [
-                  "^https?://([a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*|localhost)(:\\d+)?(/.*)?$"
+                  "^https:\\/\\/(www\\.)?[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)+(/)?$"
                 ],
                 "_CONTINUE_": "!(attr are present)",
                 "_RETURN_": "attr follow regex reg"
               },
               {
-                "_NAME_": "REGEX_CONTEXT_TTL",
+                "_NAME_": "REQUIRED_CONTEXT_TTL",
                 "attr": "$.context.ttl",
                 "reg": [
                   "^P(?=\\\\d|T\\\\d)(\\\\d+Y)?(\\\\d+M)?(\\\\d+D)?(T(\\\\d+H)?(\\\\d+M)?(\\\\d+S)?)?$"
+                ],
+                "_CONTINUE_": "!(attr are present)",
+                "_RETURN_": "attr follow regex reg"
+              },
+              {
+                "_NAME_": "REGEX_CONTEXT_BPP_ID",
+                "attr": "$.context.bpp_id",
+                "reg": [
+                  "^(?!.*\\b(?:http|https|www)\\b)[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)+$"
+                ],
+                "_CONTINUE_": "!(attr are present)",
+                "_RETURN_": "attr follow regex reg"
+              },
+              {
+                "_NAME_": "REGEX_CONTEXT_BPP_URI",
+                "attr": "$.context.bpp_uri",
+                "reg": [
+                  "^https:\\/\\/(www\\.)?[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)+(/)?$"
                 ],
                 "_CONTINUE_": "!(attr are present)",
                 "_RETURN_": "attr follow regex reg"
@@ -171,28 +181,18 @@ generated: 2026-03-18
         ]
       },
       {
-        "_NAME_": "STATUS_ORDER_ID_PERSONAL_LOAN",
-        "orderidpath": "$.message.order_id",
-        "_CONTINUE_": "!(orderidpath are present)",
-        "_RETURN_": [
-          {
-            "_NAME_": "REQUIRED_STATUS_ORDER_ID",
-            "attr": "$.message.order_id",
-            "_RETURN_": "attr are present"
-          }
-        ]
+        "_NAME_": "REQUIRED_ORDER_ID",
+        "usecasepath": "$.message.ref_id",
+        "_CONTINUE_": "(usecasepath are present)",
+        "attr": "$.message.order_id",
+        "_RETURN_": "attr are present"
       },
       {
-        "_NAME_": "STATUS_REF_ID_GOLD_LOAN",
-        "refidpath": "$.message.ref_id",
-        "_CONTINUE_": "!(refidpath are present)",
-        "_RETURN_": [
-          {
-            "_NAME_": "REQUIRED_STATUS_REF_ID",
-            "attr": "$.message.ref_id",
-            "_RETURN_": "attr are present"
-          }
-        ]
+        "_NAME_": "REQUIRED_REF_ID",
+        "usecasepath": "$.message.order_id",
+        "_CONTINUE_": "(usecasepath are present)",
+        "attr": "$.message.ref_id",
+        "_RETURN_": "attr are present"
       }
     ]
   }
