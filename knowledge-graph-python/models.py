@@ -2,7 +2,7 @@
 models.py — Dataclasses for all Knowledge Graph node and edge types.
 
 Node identity conventions:
-- DomainNode:     name + version  (e.g. "ONDC:FIS12" + "2.0.2")
+- DomainNode:     name + version  (e.g. "ONDC:FIS12" + "2.3.0")
 - ActionNode:     name + domain + version  (same action name exists in every domain)
 - GroupNode:      name + action + domain + version
 - RuleNode:       name + action + domain + version
@@ -25,7 +25,7 @@ from typing import Optional, List
 @dataclass
 class DomainNode:
     name: str           # e.g. "ONDC:FIS12"
-    version: str        # e.g. "2.0.2"
+    version: str        # e.g. "2.3.0"
     code_name: str = "L1validations"
 
 
