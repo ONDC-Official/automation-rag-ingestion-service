@@ -58,7 +58,7 @@ if [[ "$INGEST_MODE" == "neo4j" || "$INGEST_MODE" == "all" ]]; then
   cd /app/knowledge-graph-python
 
   # We pass $DATA_DIR dynamically to the python script via flag
-  python3 main.py --data-dir "$DATA_DIR" --mode append
+  python3 main.py --data-dir "$DATA_DIR" --clear
 fi
 
 echo "✅ All ingestion tasks complete!"

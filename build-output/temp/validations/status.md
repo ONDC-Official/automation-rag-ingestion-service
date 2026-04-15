@@ -1,8 +1,8 @@
 ---
 action: status
 codeName: L1validations
-numTests: 23
-generated: 2026-04-14
+numTests: 21
+generated: 2026-04-15
 domain: ONDC:FIS12
 version: 2.3.0
 ---
@@ -10,7 +10,7 @@ version: 2.3.0
 # L1validations — `status` Validations
 
 These are the validation rules applied when processing the `status` API call in the L1validations flow.
-There are **23** validation rules organized into **3** top-level group(s).
+There are **21** validation rules organized into **3** top-level group(s).
 
 ---
 ## STATUS_CONTEXT
@@ -21,7 +21,7 @@ This group contains **3** sub-group(s)/validation(s): CONTEXT_REQUIRED, CONTEXT_
 
 ### CONTEXT_REQUIRED
 
-This is a group of **12** sub-validation(s) that all must pass: REQUIRED_CONTEXT_LOCATION_COUNTRY_CODE, REQUIRED_CONTEXT_LOCATION_CITY_CODE, REQUIRED_CONTEXT_DOMAIN, REQUIRED_CONTEXT_TIMESTAMP, REQUIRED_CONTEXT_BAP_ID, REQUIRED_CONTEXT_BAP_URI, REQUIRED_CONTEXT_TRANSACTION_ID, REQUIRED_CONTEXT_MESSAGE_ID, REQUIRED_CONTEXT_VERSION, REQUIRED_CONTEXT_TTL, REQUIRED_CONTEXT_BPP_ID, and REQUIRED_CONTEXT_BPP_URI.
+This is a group of **12** sub-validation(s) that all must pass: REQUIRED_CONTEXT_LOCATION_COUNTRY_CODE, REQUIRED_CONTEXT_LOCATION_CITY_CODE, REQUIRED_CONTEXT_DOMAIN, REQUIRED_CONTEXT_TIMESTAMP, REQUIRED_CONTEXT_BAP_ID, REQUIRED_CONTEXT_BAP_URI, REQUIRED_CONTEXT_BPP_ID, REQUIRED_CONTEXT_BPP_URI, REQUIRED_CONTEXT_TRANSACTION_ID, REQUIRED_CONTEXT_MESSAGE_ID, REQUIRED_CONTEXT_VERSION, and REQUIRED_CONTEXT_TTL.
 
 ---
 
@@ -55,6 +55,24 @@ This is a group of **12** sub-validation(s) that all must pass: REQUIRED_CONTEXT
 
 - $.context.bap_uri must be present in the payload
 
+**REQUIRED_CONTEXT_BPP_ID**
+`group: STATUS_CONTEXT > CONTEXT_REQUIRED | type: leaf`
+
+- $.context.bpp_id must be present in the payload
+
+> **Skip if:**
+>
+>     - all elements of ["status"] are in ["search"]
+
+**REQUIRED_CONTEXT_BPP_URI**
+`group: STATUS_CONTEXT > CONTEXT_REQUIRED | type: leaf`
+
+- $.context.bpp_uri must be present in the payload
+
+> **Skip if:**
+>
+>     - all elements of ["status"] are in ["search"]
+
 **REQUIRED_CONTEXT_TRANSACTION_ID**
 `group: STATUS_CONTEXT > CONTEXT_REQUIRED | type: leaf`
 
@@ -75,16 +93,6 @@ This is a group of **12** sub-validation(s) that all must pass: REQUIRED_CONTEXT
 
 - $.context.ttl must be present in the payload
 
-**REQUIRED_CONTEXT_BPP_ID**
-`group: STATUS_CONTEXT > CONTEXT_REQUIRED | type: leaf`
-
-- $.context.bpp_id must be present in the payload
-
-**REQUIRED_CONTEXT_BPP_URI**
-`group: STATUS_CONTEXT > CONTEXT_REQUIRED | type: leaf`
-
-- $.context.bpp_uri must be present in the payload
-
 ### CONTEXT_ENUM
 
 This is a group of **2** sub-validation(s) that all must pass: VALID_CONTEXT_LOCATION_COUNTRY_CODE and VALID_CONTEXT_DOMAIN.
@@ -94,7 +102,7 @@ This is a group of **2** sub-validation(s) that all must pass: VALID_CONTEXT_LOC
 **VALID_CONTEXT_LOCATION_COUNTRY_CODE**
 `group: STATUS_CONTEXT > CONTEXT_ENUM | type: leaf`
 
-- All elements of $.context.location.country.code must be in ["IND"]
+- At least one of $.context.location.country.code must be in ["IND"]
 
 > **Skip if:**
 >
@@ -111,20 +119,20 @@ This is a group of **2** sub-validation(s) that all must pass: VALID_CONTEXT_LOC
 
 ### CONTEXT_REGEX
 
-This is a group of **7** sub-validation(s) that all must pass: REGEX_CONTEXT_LOCATION_CITY_CODE, REGEX_CONTEXT_TIMESTAMP_1, REGEX_CONTEXT_BAP_ID, REGEX_CONTEXT_BAP_URI, REQUIRED_CONTEXT_TTL, REGEX_CONTEXT_BPP_ID, and REGEX_CONTEXT_BPP_URI.
+This is a group of **5** sub-validation(s) that all must pass: REGEX_CONTEXT_LOCATION_CITY_CODE, REGEX_CONTEXT_TIMESTAMP, REGEX_CONTEXT_BAP_ID, REGEX_CONTEXT_BAP_URI, and REGEX_CONTEXT_TTL.
 
 ---
 
 **REGEX_CONTEXT_LOCATION_CITY_CODE**
 `group: STATUS_CONTEXT > CONTEXT_REGEX | type: leaf`
 
-- All elements of $.context.location.city.code must follow every regex in ["(\\*)|(^std\\:[0-9]{2,4}$)"]
+- All elements of $.context.location.city.code must follow every regex in ["^\*$"]
 
 > **Skip if:**
 >
 >     - $.context.location.city.code is not in the payload
 
-**REGEX_CONTEXT_TIMESTAMP_1**
+**REGEX_CONTEXT_TIMESTAMP**
 `group: STATUS_CONTEXT > CONTEXT_REGEX | type: leaf`
 
 - All elements of $.context.timestamp must follow every regex in ["^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"]
@@ -145,13 +153,13 @@ This is a group of **7** sub-validation(s) that all must pass: REGEX_CONTEXT_LOC
 **REGEX_CONTEXT_BAP_URI**
 `group: STATUS_CONTEXT > CONTEXT_REGEX | type: leaf`
 
-- All elements of $.context.bap_uri must follow every regex in ["^https:\/\/(www\.)?[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+(/)?$"]
+- All elements of $.context.bap_uri must follow every regex in ["^https?://([a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*|localhost)(:\d+)?(/.*)?$"]
 
 > **Skip if:**
 >
 >     - $.context.bap_uri is not in the payload
 
-**REQUIRED_CONTEXT_TTL**
+**REGEX_CONTEXT_TTL**
 `group: STATUS_CONTEXT > CONTEXT_REGEX | type: leaf`
 
 - All elements of $.context.ttl must follow every regex in ["^P(?=\\d|T\\d)(\\d+Y)?(\\d+M)?(\\d+D)?(T(\\d+H)?(\\d+M)?(\\d+S)?)?$"]
@@ -160,44 +168,34 @@ This is a group of **7** sub-validation(s) that all must pass: REGEX_CONTEXT_LOC
 >
 >     - $.context.ttl is not in the payload
 
-**REGEX_CONTEXT_BPP_ID**
-`group: STATUS_CONTEXT > CONTEXT_REGEX | type: leaf`
+---
 
-- All elements of $.context.bpp_id must follow every regex in ["^(?!.*\b(?:http|https|www)\b)[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$"]
+## STATUS_ORDER_ID_PERSONAL_LOAN
 
-> **Skip if:**
->
->     - $.context.bpp_id is not in the payload
-
-**REGEX_CONTEXT_BPP_URI**
-`group: STATUS_CONTEXT > CONTEXT_REGEX | type: leaf`
-
-- All elements of $.context.bpp_uri must follow every regex in ["^https:\/\/(www\.)?[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+(/)?$"]
+This is a group of **1** sub-validation(s) that all must pass: REQUIRED_STATUS_ORDER_ID.
 
 > **Skip if:**
->
->     - $.context.bpp_uri is not in the payload
+> - $.message.order_id must **not** be present in the payload
 
 ---
 
-## REQUIRED_ORDER_ID
-
-`group: top-level | type: leaf`
+**REQUIRED_STATUS_ORDER_ID**
+`group: STATUS_ORDER_ID_PERSONAL_LOAN | type: leaf`
 
 - $.message.order_id must be present in the payload
 
+---
+
+## STATUS_REF_ID_GOLD_LOAN
+
+This is a group of **1** sub-validation(s) that all must pass: REQUIRED_STATUS_REF_ID.
+
 > **Skip if:**
->
->     - $.message.ref_id is in the payload
+> - $.message.ref_id must **not** be present in the payload
 
 ---
 
-## REQUIRED_REF_ID
-
-`group: top-level | type: leaf`
+**REQUIRED_STATUS_REF_ID**
+`group: STATUS_REF_ID_GOLD_LOAN | type: leaf`
 
 - $.message.ref_id must be present in the payload
-
-> **Skip if:**
->
->     - $.message.order_id is in the payload

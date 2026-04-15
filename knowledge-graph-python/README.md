@@ -284,7 +284,7 @@ kg.close()
 
 ---
 
-## Stats (ONDC FIS12 v2.0.2)
+## Stats (ONDC FIS12 v2.3.0)
 
 After a full ingest across all 12 actions:
 
